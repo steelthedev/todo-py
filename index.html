@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pyscript Todo</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="pyscript/pyscript.css" />
+  <script defer src="pyscript/pyscript.js"></script>
+ 
+
+</head>
+<body>
+    <py-env>
+    - autoclose_loader: true
+    - runtimes:
+      -
+        src: "/pyodide.js"
+        name: pyodide-0.20
+        lang: python
+    - paths:
+        - script/app.py
+  </py-env>
+  <section class="todo">
+    <div class="container">
+      <div class="row justify-content-center mt-5">
+        <div class="col-lg-8 text-center">
+          <h2 class="lead">Pyscript App</h2>
+        </div>
+          
+            <div class="col-lg-6 mt-5">
+              <div class="todo-card">
+                <div class="t-line">
+                  <div class="todo-box" >
+                    <div class="row" id="todo-row">
+                      <div class="form-group">
+                        <input type="text" name="addtodo" id="taskadd" class="form-control">
+                        <button pys-onClick="create" id="add" type="button" class="btn shadow-none mt-2 btn-outline-light btn-add btn-primary" >Add</button>
+                    </div>
+                     
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          
+        </div>
+      </div> 
+  </section>
+  <py-script output="todo-row">
+    from app import GetTasks,delete,create
+    from pyodide import create_proxy
+    try:
+      loop = asyncio.get_event_loop()
+    except:
+      print("404")
+    task = await loop.run_until_complete(GetTasks())
+    i = 0
+    parent = document.querySelector("#todo-row")
+    for t in task:
+      i +=1
+      html_data = document.createElement("h6")
+      html_data.className = "task-test col-8"
+      html_data.innerHTML = t["task"]
+      parent.appendChild(html_data)
+      button= document.createElement("button")
+      button.className = "btn btn-delete btn-outline-light btn-danger col-4"
+      button.innerHTML = "Delete"
+      button.value = t["id"]
+      button.setAttribute("id", "del")
+      button.addEventListener("click", create_proxy(delete))
+      parent.appendChild(button)
+    </py-script>
+
+</body>
+<script src="js/bootstrap.min.js"></script>
+</html>
